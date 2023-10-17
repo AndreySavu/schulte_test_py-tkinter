@@ -4,11 +4,14 @@ from tkinter import ttk
 
 sys.path.append('./')
 from entities.User import User
+from frames.TestWindow import TestWindow
 
 
 class UserMenuWindow():
     def start_test(self):
-        pass
+        self.clean()
+        test_win = TestWindow(self.root, self.User, self.spinbox_var)
+        
     
     def watch_results(self):
         pass
