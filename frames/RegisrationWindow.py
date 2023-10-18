@@ -59,7 +59,7 @@ class RegistrationWindow():
             self.wrong_name()
 
 
-    def __init__(self, root):
+    def __init__(self, root: Tk):
         self.root = root
         self.var = IntVar()
         #все элементы окна

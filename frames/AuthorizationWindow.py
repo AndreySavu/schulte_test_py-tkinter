@@ -1,6 +1,7 @@
 import hashlib
 import sqlite3
 import sys
+from tkinter import *
 from tkinter import font, ttk
 from tkinter.messagebox import showerror, showinfo
 
@@ -53,7 +54,7 @@ class AuthorizationWindow():
         
         
 
-    def __init__(self, root, user_type):
+    def __init__(self, root:Tk, user_type):
         self.user_type = user_type
         label_font = font.Font(underline=True)
         self.root = root

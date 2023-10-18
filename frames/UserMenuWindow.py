@@ -31,7 +31,7 @@ class UserMenuWindow():
         self.stats.place_forget()
         self.cancel.place_forget()
 
-    def __init__(self, root, user):
+    def __init__(self, root:Tk, user):
         self.root = root
         self.User = user
 

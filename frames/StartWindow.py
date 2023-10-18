@@ -1,10 +1,11 @@
+from tkinter import *
 from tkinter import ttk
 
 from frames.AuthorizationWindow import AuthorizationWindow
 
 
 class StartWindow:
-    def __init__(self, root):
+    def __init__(self, root:Tk):
         self.root = root
         self.process = ttk.Label(self.root, text = 'Выберите роль')
         self.button1 = ttk.Button(self.root, text = 'Гость', command=self.continue_as_guest)
