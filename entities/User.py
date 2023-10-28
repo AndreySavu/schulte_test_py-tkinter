@@ -6,24 +6,24 @@ class User:
 
     @property
     def name(self):
-        return self._name
-
-    @property
-    def age(self):
-        return self._age
-
-    @property
-    def type(self):
-        return self._type
+        return getattr(self, '_name')
 
     @name.setter
     def name(self, name):
-        self._name = name
+        setattr(self, '_name', name)
+
+    @property
+    def age(self):
+        return getattr(self, '_age')
 
     @age.setter
     def age(self, age):
-        self._age = age
+        setattr(self, '_age', age)
+
+    @property
+    def type(self):
+        return getattr(self, '_type')
 
     @type.setter
     def type(self, type):
-        self._type = type
+        setattr(self, '_type', type)
