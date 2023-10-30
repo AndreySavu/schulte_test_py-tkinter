@@ -2,8 +2,8 @@ import sys
 from tkinter import *
 from tkinter import ttk
 
-sys.path.append('./')
 from entities.User import User
+from frames.StartWindow import *
 from frames.TestWindow import TestWindow
 
 
@@ -18,7 +18,6 @@ class UserMenuWindow():
     
     def back_to_start(self):
         self.clean()
-        from frames.StartWindow import StartWindow
         start_win = StartWindow(self.root)
     
     def clean(self):
