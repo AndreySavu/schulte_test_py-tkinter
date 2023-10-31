@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 
 from frames.AuthorizationWindow import AuthorizationWindow
+from frames.TestWindow import TestWindow
 
 
 class StartWindow:
@@ -25,7 +26,8 @@ class StartWindow:
 
 
     def continue_as_guest(self):
-        pass #тут будет сразу тест
+        test_win = TestWindow(self.root)
+        self.clean()
     
     def continue_as_user(self):
         auth_win = AuthorizationWindow(self.root, 0)
