@@ -7,6 +7,7 @@ from tkinter.messagebox import showerror, showinfo
 
 sys.path.append('./')
 from entities.User import User
+from frames.PsychologistMenuWindow import PsychologistMenuWindow
 from frames.RegisrationWindow import RegistrationWindow
 from frames.UserMenuWindow import UserMenuWindow
 
@@ -33,7 +34,7 @@ class AuthorizationWindow():
         h = hashlib.shake_256(self.e_password.get().encode('utf-8'))
         cursor.execute('SELECT * FROM users WHERE name=? AND password=? AND type=?;',
                        (self.e_login.get(),h.hexdigest(20),self.user_type,))
-        print(self.e_login.get(),h.hexdigest(20),self.user_type)
+        #print(self.e_login.get(),h.hexdigest(20),self.user_type)
         row = cursor.fetchall()
         print(row)
         if len(row)==0:
@@ -46,7 +47,7 @@ class AuthorizationWindow():
         if(row[0][4]==0):
             menu_win = UserMenuWindow(self.root, User(row[0][1], row[0][3],row[0][4]))
         else:
-            pass#тут окно для психолога
+            menu_win = PsychologistMenuWindow(self.root, User(row[0][1], row[0][3],row[0][4]))
 
     def registration(self,qq):
         self.clean()

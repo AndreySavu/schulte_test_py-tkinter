@@ -3,6 +3,7 @@ import time
 from tkinter import *
 from tkinter import Tk, ttk
 
+from entities.Results import Results
 from entities.Table import Table
 from entities.User import User
 
@@ -13,9 +14,9 @@ class TestWindow:
         self.select_dimension = ttk.Label(self.root, text = 'Выберите размерность таблиц')
         
         self.spinbox_var1 = StringVar(value=1)
-        self.spinbox1 = ttk.Spinbox(from_=1, to=10, increment=1, textvariable=self.spinbox_var1)
+        self.spinbox1 = ttk.Spinbox(self.root, from_=1, to=10, increment=1, textvariable=self.spinbox_var1)
         self.spinbox_var2 = StringVar(value=5)
-        self.spinbox2 = ttk.Spinbox(from_=3, to=7, increment=1, textvariable=self.spinbox_var2)
+        self.spinbox2 = ttk.Spinbox(self.root, from_=3, to=7, increment=1, textvariable=self.spinbox_var2)
 
         self.select_number.place(relx=0.2,rely=0.4)
         self.spinbox1.place(relx=0.2,rely=0.45)
@@ -23,16 +24,14 @@ class TestWindow:
         self.spinbox2.place(relx=0.7,rely=0.45)
 
     def destroy_selectrors(self):
-        self.select_number.destroy()
-        self.spinbox1.destroy()
-        self.select_dimension.destroy()
-        self.spinbox2.destroy()
+        self.select_number.place_forget()
+        self.spinbox1.place_forget()
+        self.select_dimension.place_forget()
+        self.spinbox2.place_forget()
 
     def clean(self):
-        self.select_number.place_forget()
-        self.select_dimension.place_forget()
-        self.spinbox1.place_forget()
-        self.spinbox2.place_forget()
+        self.destroy_selectrors()
+
         self.time_label.place_forget()
         self.table_num_label.place_forget()
         self.instruction_button.place_forget()
@@ -45,15 +44,16 @@ class TestWindow:
     def table_controller(self):
         #print(self.spinbox_var1.get(), self.spinbox_var2.get())
         if self.table_num[-1]>self.number_of_tables:
-            self.array_elems_times.append((self.elems, str(int(time.time()) - self.start_time)))
+            self.array_elems_times.append((self.elems, int(time.time()) - self.start_time))
             
+            self.clean()
             self.raw_result()
             return#конец
         
         if self.current_table != self.table_num[-1] :
             self.current_table=self.table_num[-1]
             self.table_num_label.configure(text = f'Таблица {self.table_num[-1]}')
-            self.array_elems_times.append((self.elems, str(int(time.time()) - self.start_time)))
+            self.array_elems_times.append((self.elems, int(time.time()) - self.start_time))
 
             self.elems = []#очищаем массив для результата
             self.start_time = int(time.time())#обнуляем счетчик
@@ -80,10 +80,32 @@ class TestWindow:
         self.show_table()#выводим первую таблицу
     
     def show_table(self):
-        tab = Table(self.root, self.dim, self.elems, self.table_num)
+        self.tab = Table(self.root, self.dim, self.elems, self.table_num)
+
+    def make_treeview_for_results(self):
+        self.result_label = ttk.Label(self.root, text='Результат')
+        columns = ('#1', "#2", "#3", "#4")
+        self.tree = ttk.Treeview(self.root, show="headings", columns=columns)
+        
+        self.tree.column('#1', width=150)
+        self.tree.column('#2', width=150)
+        self.tree.column('#3', width=150)
+        self.tree.column('#4', width=150)
+        self.tree.heading("#1", text="Номер таблицы")
+        self.tree.heading("#2", text="Ошибочные нажатия")
+        self.tree.heading("#3", text="Количество ошибок")
+        self.tree.heading("#4", text="Время, сек")
+        self.tree.place(relx=0.5, rely=0.5, anchor=CENTER)
+        self.result_label.place(relx=0.5,rely=0.27, anchor=CENTER)
 
     def raw_result(self):
-        print(self.array_elems_times)
+        res = Results(self.array_elems_times, self.dim).get_mistakes_num_of_mistakes_time()
+        #Table.make_center_frame(self)
+        self.make_treeview_for_results()
+
+        for i in range(len(res)):
+            self.tree.insert("", END, values=(i+1,res[i][0],res[i][1],res[i][2]))
+        
 
     def show_instruction(self):
         frame = Tk()

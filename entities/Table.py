@@ -37,22 +37,23 @@ class Table():
         if  btn[1] == self.dim**2 and self.current_number==self.dim**2:
             self.end.append(self.end[-1]+1)
             #destroy table
-            print("END TABLE")
             self.frame.destroy()
             
     def make_sequence(self):
         return random.sample(range(1,self.dim**2+1),self.dim**2)
     
+    def make_center_frame(self):
+        self.frame = ttk.Frame(self.root, borderwidth=1, relief=SOLID, padding=[1, 1])
+        self.frame.place(relx=0.5,rely=0.5, width=self.root.winfo_width()/3, height= self.root.winfo_width()/3, anchor=CENTER)
+        
     def __init__(self, root, dimension, e, end):
         self.current_number = 0
         self.end = end
         self.elems=e
         self.root = root
         self.dim = dimension
-        
-        self.frame = ttk.Frame(self.root, borderwidth=1, relief=SOLID, padding=[1, 1])
-        self.frame.place(relx=0.5,rely=0.5, width=self.root.winfo_width()/3, height= self.root.winfo_width()/3, anchor=CENTER)
-        
+
+        self.make_center_frame()
         self.numbers = self.make_sequence()
         self.create_buttons()
         self.makes_buttons_white()
