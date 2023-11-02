@@ -45,7 +45,7 @@ class RegistrationWindow():
         cursor = connection.cursor()
         h = hashlib.shake_256(self.e_password.get().encode('utf-8'))
         try:
-            print((self.e_login.get(),h.hexdigest(20), self.e_age.get(), self.var.get()))
+            #print((self.e_login.get(),h.hexdigest(20), self.e_age.get(), self.var.get()))
             cursor.execute('INSERT INTO users (name, password, age, type) values (?, ?, ?, ?);',
                     (self.e_login.get(),h.hexdigest(20), self.e_age.get(), self.var.get(),))
             self.user_added()

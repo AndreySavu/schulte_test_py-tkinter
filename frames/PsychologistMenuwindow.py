@@ -71,22 +71,30 @@ class PsychologistMenuWindow():
         self.age_lbl = ttk.Label(self.root, text='Возраст:').place(relx=0.6, rely=0.35)
         self.notes_lbl = ttk.Label(self.root, text='Описание:').place(relx=0.6, rely=0.4)
 
-        self.surname_entry = ttk.Entry(self.root, state='disabled').place(relx=0.7, rely=0.2)
-        self.name_entry = ttk.Entry(self.root, state='disabled').place(relx=0.7, rely=0.25)
-        self.patronymic_entry = ttk.Entry(self.root, state='disabled').place(relx=0.7, rely=0.3)
-        self.age_entry = ttk.Entry(self.root, state='disabled').place(relx=0.7, rely=0.35)
-        self.notes_entry = Text(self.root, width=30, height=5, state='disabled').place(relx=0.7, rely=0.4)
+        self.surname_entry = ttk.Entry(self.root, state='disabled')
+        self.surname_entry.place(relx=0.7, rely=0.2)
+        self.name_entry = ttk.Entry(self.root, state='disabled')
+        self.name_entry.place(relx=0.7, rely=0.25)
+        self.patronymic_entry = ttk.Entry(self.root, state='disabled')
+        self.patronymic_entry.place(relx=0.7, rely=0.3)
+        self.age_entry = ttk.Entry(self.root, state='disabled')
+        self.age_entry.place(relx=0.7, rely=0.35)
+        self.notes_entry = Text(self.root, width=30, height=5, state='disabled')
+        self.notes_entry.place(relx=0.7, rely=0.4)
 
-        self.delete_btn = ttk.Button(self.root, text='Удалить', command=self.delete_patient).place(relx=0.7, rely=0.6)
-        self.edit_btn = ttk.Button(self.root, text='Редактировать', command=self.editing).place(relx=0.7, rely=0.65)
-        self.save_editing_btn = ttk.Button(self.root, text='Сохранить', command=self.save_editing).place(relx=0.7, rely=0.70)
+        self.delete_btn = ttk.Button(self.root, text='Удалить', command=self.delete_patient)
+        self.delete_btn.place(relx=0.7, rely=0.6)
+        self.edit_btn = ttk.Button(self.root, text='Редактировать', command=self.editing)
+        self.edit_btn.place(relx=0.7, rely=0.65)
+        self.save_editing_btn = ttk.Button(self.root, text='Сохранить', command=self.save_editing)
+        self.save_editing_btn.place(relx=0.7, rely=0.70)
 
     def enable_entries(self):
         self.surname_entry.configure(state='enabled')
         self.name_entry.configure(state='enabled')
         self.patronymic_entry.configure(state='enabled')
         self.age_entry.configure(state='enabled')
-        self.notes_entry.configure(state='enabled')
+        self.notes_entry.configure(state='normal')
 
     def disable_entries(self):
         self.surname_entry.configure(state='disabled')
@@ -106,8 +114,15 @@ class PsychologistMenuWindow():
         pass
 
     def save_editing(self):
-        self.__patient__=Patient()
-    
+        #self.__patient__=Patient()
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute('INSERT INTO patients (psy_id, f, i, o, age, notes) values \
+                           ((SELECT id FROM USERS WHERE name = ?), ?, ?, ?, ?, ?);',
+                    (self.__user__.get_name(), self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), self.age_entry.get(), self.notes_entry.get(), ))
+            self.connection.commit()
+        except:
+            print('exists')
     def start_test(self):
         pass
 
