@@ -1,14 +1,24 @@
 import sqlite3
 from tkinter import *
 from tkinter import ttk
+from tkinter.messagebox import showerror, showinfo
 
 from entities.Patient import Patient
 from entities.User import User
 
 
 class PsychologistMenuWindow():
+    def wrong_info(self):
+        showerror(title='Error', message='Неверно заполнена информация о пациенте.')
+    
+    def save_confirmed_info(self):
+        showerror(title='Info', message='Информация сохранена.')
+
+    def deletion_confirmed_info(self):#удалять каскадно, думаю (из таблицы результатов тоже)
+        showerror(title='Info', message='Пациент и его результаты удалены.')
+
     def load_interface(self):
-        self.user_lbl = ttk.Label(self.root, text = "Психолог: "+ str(self.__user__.get_name()))\
+        self.user_lbl = ttk.Label(self.root, text = "Психолог: "+ str(self._user.get_name()))\
                         .place(relx=0.1,rely=0.1)
         
         self.cancel = ttk.Button(self.root, text = 'Выйти', command=self.back_to_start)\
@@ -51,17 +61,32 @@ class PsychologistMenuWindow():
     def refresh_treeview(self):
         self.tree.delete(*self.tree.get_children())
         cursor = self.connection.cursor()
-        cursor.execute('SELECT * FROM patients WHERE psy_id=(select id from users where name=?);', (self.__user__.get_name(),))
+        cursor.execute('SELECT * FROM patients WHERE psy_id=(select id from users where name=?);', (self._user.get_name(),))
         rows = cursor.fetchall()
         for row in rows:
             self.tree.insert("", END, values=(row[0],row[2],row[3],row[4],row[5],row[6]))
 
     def selectItem(self,e):
         curItem = self.tree.focus()
-        print (self.tree.item(curItem))
+        item = self.tree.item(curItem)['values']
+        self._patient = Patient(item[0],item[1],item[2],item[3],item[4],item[5])
+
+        self.enable_entries()
+        self.clean_entries()
+        self.surname_entry.insert(0,item[1])
+        self.name_entry.insert(0, item[2])
+        self.patronymic_entry.insert(0, item[3])
+        self.age_entry.insert(0,str(item[4]))
+        self.notes_entry.insert('1.0',item[5])
+        self.disable_entries()
 
 
     def load_right_interface(self):
+        def select_mode(x):
+            if x:
+                self.save_editing()
+            else:
+                self.save_new_patient()
 
         self.charecter_lbl = ttk.Label(self.root, text='Характеристика пациента').place(relx=0.6, rely=0.1)
 
@@ -86,7 +111,7 @@ class PsychologistMenuWindow():
         self.delete_btn.place(relx=0.7, rely=0.6)
         self.edit_btn = ttk.Button(self.root, text='Редактировать', command=self.editing)
         self.edit_btn.place(relx=0.7, rely=0.65)
-        self.save_editing_btn = ttk.Button(self.root, text='Сохранить', command=self.save_editing)
+        self.save_editing_btn = ttk.Button(self.root, text='Сохранить', command=lambda:select_mode(self._mode) )
         self.save_editing_btn.place(relx=0.7, rely=0.70)
 
     def enable_entries(self):
@@ -103,26 +128,67 @@ class PsychologistMenuWindow():
         self.age_entry.configure(state='disabled')
         self.notes_entry.configure(state='disabled')
     
+    def clean_entries(self):
+        self.surname_entry.delete(0, END)
+        self.name_entry.delete(0, END)
+        self.patronymic_entry.delete(0, END)
+        self.age_entry.delete(0, END)
+        self.notes_entry.delete(1.0,END)
+
     def add_patient(self):
+        self._mode = 0
         self.enable_entries()
+        self.clean_entries()
 
     
     def delete_patient(self):
-        pass
-
+        cursor = self.connection.cursor()
+        #try:
+        cursor.execute('DELETE FROM patients WHERE psy_id=(SELECT id FROM USERS WHERE name = ?) AND f=? AND i=? AND o=? AND age=?;',
+                (self._user.get_name(), self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()),))
+        self.connection.commit()
+        self.deletion_confirmed_info()
+        # except:
+        #     self.wrong_info()
+    
     def editing(self):
-        pass
+        self._mode = 1
+        self.enable_entries()
 
     def save_editing(self):
-        #self.__patient__=Patient()
+
+        cursor = self.connection.cursor()
+        #try:
+        cursor.execute('UPDATE patients SET f=?, i=?, o=?, age=?, notes=? WHERE psy_id = (SELECT id FROM users WHERE name = ?) AND id = ?;',
+                (self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()), self.notes_entry.get("1.0",'end-1c'),
+                    self._user.get_name(), self._patient.get_id()))
+        self.connection.commit()
+        self._patient = Patient(self._patient.get_id(),self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()), self.notes_entry.get("1.0",'end-1c'))
+        self.save_confirmed_info()
+        self.disable_entries()
+            
+        # except:
+        #     self.wrong_info()
+    
+    def save_new_patient(self):
         cursor = self.connection.cursor()
         try:
-            cursor.execute('INSERT INTO patients (psy_id, f, i, o, age, notes) values \
-                           ((SELECT id FROM USERS WHERE name = ?), ?, ?, ?, ?, ?);',
-                    (self.__user__.get_name(), self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), self.age_entry.get(), self.notes_entry.get(), ))
+            cursor.execute('INSERT INTO patients (psy_id, f, i, o, age, notes) values\
+                            ((SELECT id FROM users WHERE name = ?),?,?,?,?,?);',
+                    (self._user.get_name(),self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()), self.notes_entry.get("1.0",'end-1c'),))
+            
             self.connection.commit()
+
+            cursor.execute('SELECT * FROM patients WHERE psy_id=(select id from users where name=?) AND f=? AND i=? AND o=?;',\
+                            (self._user.get_name(),self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(),))
+            new_id = cursor.fetchall()[0]
+            print('IDDDD',new_id)
+            self._patient = Patient(new_id,self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()), self.notes_entry.get("1.0",'end-1c'))
+            self.save_confirmed_info()
+            self.disable_entries()
+            
         except:
-            print('exists')
+            self.wrong_info()
     def start_test(self):
         pass
 
@@ -139,7 +205,8 @@ class PsychologistMenuWindow():
 
     def __init__(self, root:Tk, user:User):
         self.root = root
-        self.__user__ = user
-        self.__patient__ = None
+        self._user = user
+        self._patient = None
+        self._mode = 0#0-insert, 1-update
         self.connection = sqlite3.connect('storage/test.db')
         self.load_interface()
