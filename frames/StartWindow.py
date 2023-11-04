@@ -32,6 +32,7 @@ class StartWindow:
     def continue_as_user(self):
         auth_win = AuthorizationWindow(self.root, 0)
         self.clean()
+        
     def continue_as_psychologist(self):
         auth_win = AuthorizationWindow(self.root, 1)
         self.clean()

@@ -5,7 +5,18 @@ from tkinter import Tk, ttk
 
 
 class Table():
+    def __init__(self, root:Tk, dimension:int, e, end):
+        self.current_number = 0
+        self.end = end
+        self.elems=e
+        self.root = root
+        self.dim = dimension
 
+        self.make_center_frame()
+        self.numbers = self.make_sequence()
+        self.create_buttons()
+        self.makes_buttons_white()
+    
     def create_buttons(self):
         self.buttons = []
         for x in range (self.dim**2):
@@ -45,15 +56,3 @@ class Table():
     def make_center_frame(self):
         self.frame = ttk.Frame(self.root, borderwidth=1, relief=SOLID, padding=[1, 1])
         self.frame.place(relx=0.5,rely=0.5, width=self.root.winfo_width()/3, height= self.root.winfo_width()/3, anchor=CENTER)
-        
-    def __init__(self, root, dimension, e, end):
-        self.current_number = 0
-        self.end = end
-        self.elems=e
-        self.root = root
-        self.dim = dimension
-
-        self.make_center_frame()
-        self.numbers = self.make_sequence()
-        self.create_buttons()
-        self.makes_buttons_white()

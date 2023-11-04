@@ -20,3 +20,6 @@ class Patient():
     
     def get_id(self):
         return self._id
+    
+    def get_surname_n_initials(self):
+        return f'{self._surname} {self._name[:1]}. {self._patronymic[:1]}.'

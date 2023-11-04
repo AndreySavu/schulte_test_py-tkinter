@@ -18,23 +18,23 @@ class PsychologistMenuWindow():
         showerror(title='Info', message='Пациент и его результаты удалены.')
 
     def load_interface(self):
-        self.user_lbl = ttk.Label(self.root, text = "Психолог: "+ str(self._user.get_name()))\
-                        .place(relx=0.1,rely=0.1)
+        self.user_lbl = ttk.Label(self.root, text = "Психолог: "+ str(self._user.get_name()))
+        self.user_lbl.place(relx=0.1,rely=0.1)
         
-        self.cancel = ttk.Button(self.root, text = 'Выйти', command=self.back_to_start)\
-                        .place(relx=0.9,rely=0.1)
+        self.cancel = ttk.Button(self.root, text = 'Выйти', command=self.back_to_start)
+        self.cancel.place(relx=0.9,rely=0.1)
 
-        self.start_test_btn = ttk.Button(self.root, text = 'Тестирование', command=self.start_test)\
-                        .place(relx=0.5, rely=0.8)
+        self.start_test_btn = ttk.Button(self.root, text = 'Тестирование', command=self.start_test)
+        self.start_test_btn.place(relx=0.5, rely=0.8)
         self.make_patient_treeview()
         self.load_right_interface()
 
     def make_patient_treeview(self):
-        self.patient_label = ttk.Label(self.root, text='Пациенты')\
-                                        .place(relx=0.1,rely=0.27, anchor=CENTER)
+        self.patient_label = ttk.Label(self.root, text='Пациенты')
+        self.patient_label.place(relx=0.1,rely=0.27, anchor=CENTER)
         
-        self.refresh_btn = ttk.Button(self.root, text = 'Обновить', command=self.refresh_treeview)\
-                                        .place(relx= 0.22, rely = 0.25)
+        self.refresh_btn = ttk.Button(self.root, text = 'Обновить', command=self.refresh_treeview)
+        self.refresh_btn.place(relx= 0.22, rely = 0.25)
         
         
         columns = ('#1', "#2", "#3", "#4", '#5', '6')

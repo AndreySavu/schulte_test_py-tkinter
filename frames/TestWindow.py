@@ -3,24 +3,64 @@ import time
 from tkinter import *
 from tkinter import Tk, ttk
 
-from entities.Results import Results
+from entities.Patient import Patient
 from entities.Table import Table
+from entities.TestResult import TestResult
 from entities.User import User
 
 
 class TestWindow:
-    def init_selectors(self):
+    def __init__(self, root:Tk, user:User=None, patient:Patient=None):
+        self.root = root
+        self._user = user
+        self._patient = patient
+        self.number_of_tables = None#количество таблиц
+        self.dim = None#размерность таблицы
+        self.current_table = 1#начинаем с первой таблицы
+        
+        self.elems = []#для хванения номеров текущей таблицы
+        '''тут храним список (список номеров, время прохождения) для каждой таблицы.
+        потом из количества номеров считаем сколько было ошибок в каждой таблице'''
+        self.array_elems_times = []
+        self.table_num = [1]#очевидный костыль, чтобы из table.py увеличивать current_table
+
+        self.init_interface()
+        self.place_interface()
+    
+    def init_interface(self):
+        #labels and buttons
+
+        if self._patient:
+            self.user_lbl = ttk.Label(self.root, text = 'Пациент: '+ str(self._patient.get_surname_n_initials()))
+            self.user_lbl.place(relx=0.1,rely=0.1)
+        elif self._user:
+            self.user_lbl = ttk.Label(self.root, text = 'Пользователь: '+ str(self._user.get_name()))
+            self.user_lbl.place(relx=0.1,rely=0.1)
+        
+        self.time_label = ttk.Label(self.root)
+        self.table_num_label = ttk.Label(self.root, text = 'Таблица: 0')
+        self.start_button = ttk.Button(self.root, text = 'Начать', command=self.start)
+        self.instruction_button = ttk.Button(self.root, text = 'Инструкция', command=self.show_instruction)
+        self.back_button = ttk.Button(self.root, text = 'Назад', command=self.go_back)
+
+        #selectors
         self.select_number = ttk.Label(self.root, text = 'Выберите количество таблиц')
         self.select_dimension = ttk.Label(self.root, text = 'Выберите размерность таблиц')
-        
         self.spinbox_var1 = StringVar(value=1)
-        self.spinbox1 = ttk.Spinbox(self.root, from_=1, to=10, increment=1, textvariable=self.spinbox_var1)
         self.spinbox_var2 = StringVar(value=5)
+        self.spinbox1 = ttk.Spinbox(self.root, from_=1, to=10, increment=1, textvariable=self.spinbox_var1)
         self.spinbox2 = ttk.Spinbox(self.root, from_=3, to=7, increment=1, textvariable=self.spinbox_var2)
+    
+    def place_interface(self):
+        
+        self.time_label.place(relx=0.05, rely=0.06)
+        self.start_button.place(relx=0.5, rely=0.6)
+        self.instruction_button.place(relx=0.8, rely=0.07)
+        self.back_button.place(relx=0.1, rely=0.07)
 
         self.select_number.place(relx=0.2,rely=0.4)
-        self.spinbox1.place(relx=0.2,rely=0.45)
         self.select_dimension.place(relx=0.7,rely=0.4)
+        self.spinbox1.place(relx=0.2,rely=0.45)
         self.spinbox2.place(relx=0.7,rely=0.45)
 
     def destroy_selectrors(self):
@@ -32,10 +72,37 @@ class TestWindow:
     def clean(self):
         self.destroy_selectrors()
 
+        if self._user or self._patient:
+            self.user_lbl.place_forget()
         self.time_label.place_forget()
         self.table_num_label.place_forget()
         self.instruction_button.place_forget()
         self.start_button.place_forget()
+        self.back_button.place_forget()
+
+    def go_back(self):
+        from frames.PsychologistMenuWindow import PsychologistMenuWindow
+        from frames.StartWindow import StartWindow
+        from frames.UserMenuWindow import UserMenuWindow
+        self.clean()
+        try:
+            self.tab.frame.place_forget()
+        except:
+            pass
+        try:
+            self.tree.place_forget()
+            self.result_label.place_forget()
+        except:
+            pass
+       
+
+        if self._user==None:#if guest
+            win = StartWindow(self.root)
+        elif self._user.get_type() == 0:#user
+            win = UserMenuWindow(self.root, self._user)
+            
+        else:#psychologist
+            win = PsychologistMenuWindow(self.root, self._user)
 
     def autoc(self):
         self.time_label.configure(text= f'Время: {str(int(time.time()) - self.start_time)}' )
@@ -48,6 +115,10 @@ class TestWindow:
             
             self.clean()
             self.raw_result()
+            self.back_button.config(text='Сохранить и назад')
+            self.back_button.place(relx=0.1, rely=0.07)
+            #ТУТ ДОБАВИТЬ ГАЛОЧКУ ВИДИМОСТЬ ДЛЯ ВСЕХ и делать сохранение в бд по нажатию кнопки
+
             return#конец
         
         if self.current_table != self.table_num[-1] :
@@ -62,8 +133,7 @@ class TestWindow:
             
         self.root.after(1000, self.table_controller)
 
-    def start(self, iter=0):
-        
+    def start(self):
         self.table_num_label.place(relx=0.5, rely=0.06)
         self.start_time = int(time.time())
         
@@ -99,13 +169,11 @@ class TestWindow:
         self.result_label.place(relx=0.5,rely=0.27, anchor=CENTER)
 
     def raw_result(self):
-        res = Results(self.array_elems_times, self.dim).get_mistakes_num_of_mistakes_time()
-        #Table.make_center_frame(self)
+        res = TestResult(self.array_elems_times, self.dim).get_mistakes_num_of_mistakes_time()
         self.make_treeview_for_results()
 
         for i in range(len(res)):
             self.tree.insert("", END, values=(i+1,res[i][0],res[i][1],res[i][2]))
-        
 
     def show_instruction(self):
         frame = Tk()
@@ -117,24 +185,3 @@ class TestWindow:
             text.insert(END, reader.read())
         frame.mainloop()
     
-    def __init__(self, root:Tk, user=None, num_tables=None, dimension=None,  patient=None):
-        self.root = root
-        self.number_of_tables = num_tables#количество таблиц
-        self.dim = dimension#размерность таблицы
-        self.current_table = 1#начинаем с первой таблицы
-        
-        self.elems = []#для хванения номеров текущей таблицы
-        '''тут храним список (список номеров, время прохождения) для каждой таблицы.
-        потом из количества номеров считаем сколько было ошибок в каждой таблице'''
-        self.array_elems_times = []
-        self.table_num = [1]#очевидный костыль, чтобы из table.py увеличивать current_table
-
-        self.time_label = ttk.Label(self.root)
-        self.table_num_label = ttk.Label(self.root, text = 'Таблица: 0')
-        self.start_button = ttk.Button(self.root, text = 'Начать', command=self.start)
-        self.instruction_button = ttk.Button(self.root, text = 'Инструкция', command=self.show_instruction)
-        
-        self.time_label.place(relx=0.05, rely=0.06)
-        self.start_button.place(relx=0.5, rely=0.6)
-        self.instruction_button.place(relx=0.8, rely=0.1)
-        self.init_selectors()

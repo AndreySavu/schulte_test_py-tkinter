@@ -1,5 +1,5 @@
 class User():
-    def __init__(self, name, age, typ):
+    def __init__(self, name:str, age:int, typ:int):
         self.name = name
         self.age = age
         self.type = typ
