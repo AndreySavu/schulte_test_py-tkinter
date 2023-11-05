@@ -16,3 +16,25 @@ age INTEGER,
 notes TEXT,
 FOREIGN KEY (psy_id) REFERENCES users (id),
 CONSTRAINT kk UNIQUE (f,age));
+
+CREATE TABLE user_results (
+id INTEGER PRIMARY KEY,
+user_id INTEGER,
+date_time TEXT NOT NULL,
+num INTEGER,
+dim INTEGER,
+mistakes INTEGER, 
+duration INTEGER, 
+private INTEGER,
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);
+
+CREATE TABLE patient_results (
+id INTEGER PRIMARY KEY,
+patient_id INTEGER,
+date_time TEXT NOT NULL, 
+num INTEGER,
+dim INTEGER,
+mistakes INTEGER, 
+duration INTEGER, 
+FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE);
+

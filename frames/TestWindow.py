@@ -69,9 +69,26 @@ class TestWindow:
         self.select_dimension.place_forget()
         self.spinbox2.place_forget()
 
+    def end_interface(self):
+        self.save_button = ttk.Button(text='Сохранить', command=self.save_to_db)
+        self.WOsave_button = ttk.Button(text='Не сохранять', command=self.go_back)
+        self.enabled = IntVar()
+        self.enabled_checkbutton = ttk.Checkbutton(text="Видимость результата для всех", variable=self.enabled)
+        if self._patient==None:
+            self.enabled_checkbutton.place(relx=0.4, rely=0.85)
+
+        self.save_button.place(relx=0.4, rely=0.8)
+        self.WOsave_button.place(relx=0.6, rely=0.8)
+
+    def save_to_db(self):
+        if self._patient:
+            self.result.save_to_db(self._patient.get_id(),1)
+        else:
+            self.result.save_to_db(self._user.get_name(),0, self.enabled.get())
+
     def clean(self):
         self.destroy_selectrors()
-
+        
         if self._user or self._patient:
             self.user_lbl.place_forget()
         self.time_label.place_forget()
@@ -92,6 +109,9 @@ class TestWindow:
         try:
             self.tree.place_forget()
             self.result_label.place_forget()
+            self.save_button.place_forget()
+            self.WOsave_button.place_forget()
+            self.enabled_checkbutton.place_forget()
         except:
             pass
        
@@ -115,8 +135,11 @@ class TestWindow:
             
             self.clean()
             self.raw_result()
-            self.back_button.config(text='Сохранить и назад')
-            self.back_button.place(relx=0.1, rely=0.07)
+            if self._user or self._patient:
+                self.end_interface()
+            else:
+                self.back_button.place(relx=0.1, rely=0.07)
+
             #ТУТ ДОБАВИТЬ ГАЛОЧКУ ВИДИМОСТЬ ДЛЯ ВСЕХ и делать сохранение в бд по нажатию кнопки
 
             return#конец
@@ -169,11 +192,12 @@ class TestWindow:
         self.result_label.place(relx=0.5,rely=0.27, anchor=CENTER)
 
     def raw_result(self):
-        res = TestResult(self.array_elems_times, self.dim).get_mistakes_num_of_mistakes_time()
+        self.result = TestResult(self.array_elems_times, self.dim)
+        self.res = self.result.get_mistakes_num_of_mistakes_time()
         self.make_treeview_for_results()
 
-        for i in range(len(res)):
-            self.tree.insert("", END, values=(i+1,res[i][0],res[i][1],res[i][2]))
+        for i in range(len(self.res)):
+            self.tree.insert("", END, values=(i+1,self.res[i][0],self.res[i][1],self.res[i][2]))
 
     def show_instruction(self):
         frame = Tk()

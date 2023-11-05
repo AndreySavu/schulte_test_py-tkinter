@@ -5,6 +5,7 @@ from tkinter.messagebox import showerror, showinfo
 
 from entities.Patient import Patient
 from entities.User import User
+from frames.TestWindow import TestWindow
 
 
 class PsychologistMenuWindow():
@@ -54,7 +55,8 @@ class PsychologistMenuWindow():
         self.tree.heading("#6", text="Описание")
         self.tree.place(relx=0.01, rely=0.5, anchor=W)
 
-        self.add_btn = ttk.Button(self.root, text='Добавить', command=self.add_patient).place(relx=0.2, rely=0.7)
+        self.add_btn = ttk.Button(self.root, text='Добавить', command=self.add_patient)
+        self.add_btn.place(relx=0.2, rely=0.7)
         self.tree.bind('<ButtonRelease-1>', self.selectItem)
         self.refresh_treeview()
 
@@ -88,13 +90,19 @@ class PsychologistMenuWindow():
             else:
                 self.save_new_patient()
 
-        self.charecter_lbl = ttk.Label(self.root, text='Характеристика пациента').place(relx=0.6, rely=0.1)
+        self.charecter_lbl = ttk.Label(self.root, text='Характеристика пациента')
+        self.charecter_lbl.place(relx=0.6, rely=0.1)
 
-        self.surname_lbl = ttk.Label(self.root, text='Фамилия:').place(relx=0.6, rely=0.2)
-        self.name_lbl = ttk.Label(self.root, text='Имя:').place(relx=0.6, rely=0.25)
-        self.patronymic_lbl = ttk.Label(self.root, text='Отчество:').place(relx=0.6, rely=0.3)
-        self.age_lbl = ttk.Label(self.root, text='Возраст:').place(relx=0.6, rely=0.35)
-        self.notes_lbl = ttk.Label(self.root, text='Описание:').place(relx=0.6, rely=0.4)
+        self.surname_lbl = ttk.Label(self.root, text='Фамилия:')
+        self.surname_lbl.place(relx=0.6, rely=0.2)
+        self.name_lbl = ttk.Label(self.root, text='Имя:')
+        self.name_lbl.place(relx=0.6, rely=0.25)
+        self.patronymic_lbl = ttk.Label(self.root, text='Отчество:')
+        self.patronymic_lbl.place(relx=0.6, rely=0.3)
+        self.age_lbl = ttk.Label(self.root, text='Возраст:')
+        self.age_lbl.place(relx=0.6, rely=0.35)
+        self.notes_lbl = ttk.Label(self.root, text='Описание:')
+        self.notes_lbl.place(relx=0.6, rely=0.4)
 
         self.surname_entry = ttk.Entry(self.root, state='disabled')
         self.surname_entry.place(relx=0.7, rely=0.2)
@@ -189,8 +197,10 @@ class PsychologistMenuWindow():
             
         except:
             self.wrong_info()
+    
     def start_test(self):
-        pass
+        self.clean()
+        test_win = TestWindow(self.root, self._user, self._patient)
 
     def back_to_start(self):
         self.clean()
@@ -202,6 +212,28 @@ class PsychologistMenuWindow():
         
         self.user_lbl.place_forget()
         self.cancel.place_forget()
+        self.start_test_btn.place_forget()
+        self.charecter_lbl.place_forget()
+        self.surname_lbl.place_forget()
+        self.name_lbl.place_forget()
+        self.patronymic_lbl.place_forget()
+        self.age_lbl.place_forget()
+        self.notes_lbl.place_forget()
+        self.surname_entry.place_forget()
+        self.name_entry.place_forget()
+        self.patronymic_entry.place_forget()
+        self.age_entry.place_forget()
+        self.notes_entry.place_forget()
+
+        self.delete_btn.place_forget()
+        self.edit_btn.place_forget()
+        self.save_editing_btn.place_forget()
+
+        self.patient_label.place_forget()
+        self.refresh_btn.place_forget()
+        self.tree.place_forget()
+        self.add_btn.place_forget()
+
 
     def __init__(self, root:Tk, user:User):
         self.root = root
