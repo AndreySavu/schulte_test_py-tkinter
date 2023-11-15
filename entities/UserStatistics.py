@@ -61,8 +61,11 @@ class UserStatistics():
     def date_duration_plot(self, mode):
         res_array = self._results.get_results()
         counter = 1
-        #fig = Figure(figsize=(4.5, 3.5), dpi=100)
+
         fig, ax = plt.subplots()
+        fig.set_dpi(100)
+        fig.set_figheight(3.5)
+        fig.set_figwidth(4.5)
         if mode == 'one':
             users=[self._user_name]
         else:
@@ -88,20 +91,17 @@ class UserStatistics():
             
             date = date_duration.keys()
             duration = date_duration.values()
-            
-            # ax = fig.add_subplot(1, len(users), counter)
-            # ax.plot(date, duration, '-rh', linewidth=3, markersize=5, markerfacecolor='b', 
-            #     label=user)
-            # ax.grid(color='b', linewidth=0.5)
-            # ax.legend(fontsize=8)
-            plt.plot(date, duration, label=user)
+
+            ax.plot(date, duration, '-rh', linewidth=3, markersize=5, markerfacecolor='b', 
+                label=user)
+
 
             counter +=1
         
-        plt.legend()
-        plt.ylabel('Время', fontsize= 8 )
-        plt.xlabel('Дата', fontsize= 8 )
-
+        ax.set_xlabel('Дата', fontsize=8)
+        ax.set_ylabel('Время', fontsize=8)
+        ax.grid(color='b', linewidth=0.5)
+        ax.legend(fontsize=8)
         canvas = FigureCanvasTkAgg(fig, master=self.root)
         canvas.draw()
         self.canvas = canvas.get_tk_widget()
