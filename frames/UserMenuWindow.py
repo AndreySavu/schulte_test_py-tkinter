@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 
 from entities.User import User
+from frames.ResultsWindow import ResultWindow
 from frames.TestWindow import TestWindow
 
 
@@ -40,4 +41,5 @@ class UserMenuWindow():
         test_win = TestWindow(self.root, self._user)
           
     def watch_results(self):
-        pass
+        self.clean()
+        res_win = ResultWindow(self.root, user=self._user)

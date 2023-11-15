@@ -55,8 +55,8 @@ class TestWindow:
         
         self.time_label.place(relx=0.05, rely=0.06)
         self.start_button.place(relx=0.5, rely=0.6)
-        self.instruction_button.place(relx=0.8, rely=0.07)
-        self.back_button.place(relx=0.1, rely=0.07)
+        self.instruction_button.place(relx=0.1, rely=0.05)
+        self.back_button.place(relx=0.9, rely=0.05)
 
         self.select_number.place(relx=0.2,rely=0.4)
         self.select_dimension.place(relx=0.7,rely=0.4)
@@ -85,6 +85,7 @@ class TestWindow:
             self.result.save_to_db(self._patient.get_id(),1)
         else:
             self.result.save_to_db(self._user.get_name(),0, self.enabled.get())
+        self.go_back()
 
     def clean(self):
         self.destroy_selectrors()
