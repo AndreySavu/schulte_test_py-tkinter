@@ -1,19 +1,28 @@
 import sqlite3
 from tkinter import *
 from tkinter import ttk
-from tkinter.messagebox import showerror, showinfo
+from tkinter.messagebox import showerror, showinfo, showwarning
 
 from entities.Patient import Patient
 from entities.User import User
+from frames.ResultsWindow import ResultWindow
 from frames.TestWindow import TestWindow
 
 
 class PsychologistMenuWindow():
+    def __init__(self, root:Tk, user:User):
+        self.root = root
+        self._user = user
+        self._patient = None
+        self._mode = 0#0-insert, 1-update
+        self.connection = sqlite3.connect('storage/test.db')
+        self.load_interface()
+    
     def wrong_info(self):
         showerror(title='Error', message='Неверно заполнена информация о пациенте.')
     
     def save_confirmed_info(self):
-        showerror(title='Info', message='Информация сохранена.')
+        showinfo(title='Info', message='Информация сохранена.')
 
     def deletion_confirmed_info(self):#удалять каскадно, думаю (из таблицы результатов тоже)
         showerror(title='Info', message='Пациент и его результаты удалены.')
@@ -25,8 +34,7 @@ class PsychologistMenuWindow():
         self.cancel = ttk.Button(self.root, text = 'Выйти', command=self.back_to_start)
         self.cancel.place(relx=0.9,rely=0.1)
 
-        self.start_test_btn = ttk.Button(self.root, text = 'Тестирование', command=self.start_test)
-        self.start_test_btn.place(relx=0.5, rely=0.8)
+
         self.make_patient_treeview()
         self.load_right_interface()
 
@@ -58,7 +66,20 @@ class PsychologistMenuWindow():
         self.add_btn = ttk.Button(self.root, text='Добавить', command=self.add_patient)
         self.add_btn.place(relx=0.2, rely=0.7)
         self.tree.bind('<ButtonRelease-1>', self.selectItem)
+        self.all_results_button = ttk.Button(self.root, text='Просмотр всех результатов', command=self.show_all_results)
+        self.all_results_button.place(relx=0.2, rely=0.7)
         self.refresh_treeview()
+
+    def show_all_results(self):
+        self.clean()
+        res_win = ResultWindow(self.root, user=self._user, patient=0)
+
+    def show_ones_results(self):
+        if self._patient ==None:
+            showwarning(title='warning', message='Выберите пациента.')
+            return
+        self.clean()
+        res_win = ResultWindow(self.root, user=self._user, patient= self._patient)
 
     def refresh_treeview(self):
         self.tree.delete(*self.tree.get_children())
@@ -121,6 +142,11 @@ class PsychologistMenuWindow():
         self.edit_btn.place(relx=0.7, rely=0.65)
         self.save_editing_btn = ttk.Button(self.root, text='Сохранить', command=lambda:select_mode(self._mode) )
         self.save_editing_btn.place(relx=0.7, rely=0.70)
+        self.start_test_btn = ttk.Button(self.root, text = 'Тестирование', command=self.start_test)
+        self.start_test_btn.place(relx=0.7, rely=0.75)
+        self.ones_results_btn = ttk.Button(self.root, text = 'Посмотреть результаты', command=self.show_ones_results)
+        self.ones_results_btn.place(relx=0.7, rely=0.80)
+
 
     def enable_entries(self):
         self.surname_entry.configure(state='enabled')
@@ -150,33 +176,41 @@ class PsychologistMenuWindow():
 
     
     def delete_patient(self):
+        if self._patient ==None:
+            showwarning(title='warning', message='Выберите пациента.')
+            return
         cursor = self.connection.cursor()
-        #try:
-        cursor.execute('DELETE FROM patients WHERE psy_id=(SELECT id FROM USERS WHERE name = ?) AND f=? AND i=? AND o=? AND age=?;',
-                (self._user.get_name(), self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()),))
-        self.connection.commit()
-        self.deletion_confirmed_info()
-        # except:
-        #     self.wrong_info()
+        try:
+            cursor.execute('DELETE FROM patients WHERE psy_id=(SELECT id FROM USERS WHERE name = ?) AND f=? AND i=? AND o=? AND age=?;',
+                    (self._user.get_name(), self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()),))
+            self.connection.commit()
+            self.deletion_confirmed_info()
+            self._patient=None
+        except:
+            self.wrong_info()
     
     def editing(self):
+        if self._patient ==None:
+            showwarning(title='warning', message='Выберите пациента.')
+            return
         self._mode = 1
         self.enable_entries()
 
     def save_editing(self):
 
         cursor = self.connection.cursor()
-        #try:
-        cursor.execute('UPDATE patients SET f=?, i=?, o=?, age=?, notes=? WHERE psy_id = (SELECT id FROM users WHERE name = ?) AND id = ?;',
-                (self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()), self.notes_entry.get("1.0",'end-1c'),
-                    self._user.get_name(), self._patient.get_id()))
-        self.connection.commit()
-        self._patient = Patient(self._patient.get_id(),self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()), self.notes_entry.get("1.0",'end-1c'))
-        self.save_confirmed_info()
-        self.disable_entries()
+        try:
+            cursor.execute('UPDATE patients SET f=?, i=?, o=?, age=?, notes=? WHERE psy_id = (SELECT id FROM users WHERE name = ?) AND id = ?;',
+                    (self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()), self.notes_entry.get("1.0",'end-1c'),
+                        self._user.get_name(), self._patient.get_id()))
+            self.connection.commit()
+            self._patient = Patient(self._patient.get_id(),self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()), self.notes_entry.get("1.0",'end-1c'))
+            self.save_confirmed_info()
+            self.disable_entries()
+            self.refresh_treeview()
             
-        # except:
-        #     self.wrong_info()
+        except:
+            self.wrong_info()
     
     def save_new_patient(self):
         cursor = self.connection.cursor()
@@ -190,15 +224,18 @@ class PsychologistMenuWindow():
             cursor.execute('SELECT * FROM patients WHERE psy_id=(select id from users where name=?) AND f=? AND i=? AND o=?;',\
                             (self._user.get_name(),self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(),))
             new_id = cursor.fetchall()[0]
-            print('IDDDD',new_id)
             self._patient = Patient(new_id,self.surname_entry.get(), self.name_entry.get(), self.patronymic_entry.get(), int(self.age_entry.get()), self.notes_entry.get("1.0",'end-1c'))
             self.save_confirmed_info()
             self.disable_entries()
+            self.refresh_treeview()
             
         except:
             self.wrong_info()
     
     def start_test(self):
+        if self._patient ==None:
+            showwarning(title='warning', message='Выберите пациента.')
+            return
         self.clean()
         test_win = TestWindow(self.root, self._user, self._patient)
 
@@ -224,21 +261,18 @@ class PsychologistMenuWindow():
         self.patronymic_entry.place_forget()
         self.age_entry.place_forget()
         self.notes_entry.place_forget()
+        
 
         self.delete_btn.place_forget()
         self.edit_btn.place_forget()
         self.save_editing_btn.place_forget()
-
+        self.ones_results_btn.place_forget()
+        
         self.patient_label.place_forget()
         self.refresh_btn.place_forget()
         self.tree.place_forget()
         self.add_btn.place_forget()
+        self.all_results_button.place_forget()
 
 
-    def __init__(self, root:Tk, user:User):
-        self.root = root
-        self._user = user
-        self._patient = None
-        self._mode = 0#0-insert, 1-update
-        self.connection = sqlite3.connect('storage/test.db')
-        self.load_interface()
+
