@@ -28,17 +28,28 @@ class UserResults(PatientResults):
         if len(rows)==0:
             return None
         return rows
-    
-    def insert_results(self):
-        self.tree.delete(*self.tree.get_children())
 
+    def insert_results(self, dim_word='любая'):
+        word_to_dim={
+            'любая':True,
+            '3x3':3,
+            '4x4':4,
+            '5x5':5,
+            '6x6':6,
+            '7x7':7
+        }
+        self.tree.delete(*self.tree.get_children())
+        self._filtered_results =[]
         if self.var.get()==0:
             for i in self._results:
-                if i[8] == self._user.get_name():
+                if i[8] == self._user.get_name() and (word_to_dim[dim_word]==True or word_to_dim[dim_word]==i[4]):
                     self.tree.insert("", END, values=(i[8],i[4],i[6],i[5],i[3],i[2].split(' ')[0],i[2].split(' ')[1]))
+                    self._filtered_results.append(i)
         else:
             for i in self._results:
-                self.tree.insert("", END, values=(i[8],i[4],i[6],i[5],i[3],i[2].split(' ')[0],i[2].split(' ')[1]))
+                if word_to_dim[dim_word]==True or word_to_dim[dim_word]==i[4]:
+                    self.tree.insert("", END, values=(i[8],i[4],i[6],i[5],i[3],i[2].split(' ')[0],i[2].split(' ')[1]))
+                    self._filtered_results.append(i)
     
     def make_interface(self):
         self.var = IntVar()

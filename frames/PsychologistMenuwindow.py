@@ -64,7 +64,7 @@ class PsychologistMenuWindow():
         self.tree.place(relx=0.01, rely=0.5, anchor=W)
 
         self.add_btn = ttk.Button(self.root, text='Добавить', command=self.add_patient)
-        self.add_btn.place(relx=0.2, rely=0.7)
+        self.add_btn.place(relx=0.1, rely=0.7)
         self.tree.bind('<ButtonRelease-1>', self.selectItem)
         self.all_results_button = ttk.Button(self.root, text='Просмотр всех результатов', command=self.show_all_results)
         self.all_results_button.place(relx=0.2, rely=0.7)

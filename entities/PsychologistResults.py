@@ -22,10 +22,21 @@ class PsychologistResults(PatientResults):
             return None
         return rows
     
-    def insert_results(self):
+    def insert_results(self, dim_word='любая'):
+        word_to_dim={
+            'любая':True,
+            '3x3':3,
+            '4x4':4,
+            '5x5':5,
+            '6x6':6,
+            '7x7':7
+        }
+        self._filtered_results =[]
         self.tree.delete(*self.tree.get_children())
         for i in self._results:
-            self.tree.insert("", END, values=(f'{i[7]} {i[8][:1]}. {i[9][:1]}.',i[4],i[6],i[5],i[3],i[2].split(' ')[0],i[2].split(' ')[1]))
+            if word_to_dim[dim_word]==True or word_to_dim[dim_word]==i[4]:
+                self.tree.insert("", END, values=(f'{i[7]} {i[8][:1]}. {i[9][:1]}.',i[4],i[6],i[5],i[3],i[2].split(' ')[0],i[2].split(' ')[1]))
+                self._filtered_results.append(i)
     
     def make_interface(self):
         columns = ('#1', "#2", "#3", "#4", "#5", "#6","#7")

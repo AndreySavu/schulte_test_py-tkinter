@@ -65,32 +65,23 @@ class PatientStatistics():
         fig.set_dpi(100)
         fig.set_figheight(3.5)
         fig.set_figwidth(4.5)
-        if mode == 'one':
-            users=[self._user_name]
-        else:
-            users = []
-            for item in res_array:
-                if item[8] not in users:
-                    users.append(item[8])
 
-        for user in users:
-            date_duration = {}
-            for item in res_array:
-                if item[8] == user:
-                    if item[2].split(' ')[0] not in date_duration:
-                        date_duration[item[2].split(' ')[0]]= []
-                        date_duration[item[2].split(' ')[0]].append(item[6])
-                    else:
-                        date_duration[item[2].split(' ')[0]].append(item[6])
-            for item in date_duration:
-                date_duration[item]=sum(date_duration[item])/len(date_duration[item])
+        date_duration = {}
+        for item in res_array:
+            if item[2].split(' ')[0] not in date_duration:
+                date_duration[item[2].split(' ')[0]]= []
+                date_duration[item[2].split(' ')[0]].append(item[6])
+            else:
+                date_duration[item[2].split(' ')[0]].append(item[6])
+       
+        for item in date_duration:
+            date_duration[item]=sum(date_duration[item])/len(date_duration[item])
             
-            date = date_duration.keys()
-            duration = date_duration.values()
+        date = date_duration.keys()
+        duration = date_duration.values()
 
-            ax.plot(date, duration, '-rh', linewidth=3, markersize=5, markerfacecolor='b', 
-                label=user)
-            counter +=1
+        ax.plot(date, duration, '-h', linewidth=3, markersize=5, markerfacecolor='b', 
+            label=self._user_name)
         
         ax.set_xlabel('Дата', fontsize=8)
         ax.set_ylabel('Время', fontsize=8)

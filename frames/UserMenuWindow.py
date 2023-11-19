@@ -20,9 +20,9 @@ class UserMenuWindow():
         self.cancel = ttk.Button(self.root, text = 'Выйти', command=self.back_to_start)
 
     def place_interface(self):
-        self.user_lbl.place(relx=0.1,rely=0.1)
-        self.start.place(relx=0.3,rely=0.55)
-        self.stats.place(relx=0.7,rely=0.5)
+        self.user_lbl.place(relx=0.1,rely=0.06)
+        self.start.place(relx=0.4,rely=0.5)
+        self.stats.place(relx=0.53,rely=0.5)
         self.cancel.place(relx=0.5,rely=0.8)
     
     def clean(self):

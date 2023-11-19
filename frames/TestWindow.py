@@ -1,7 +1,7 @@
 import random
 import time
 from tkinter import *
-from tkinter import Tk, ttk
+from tkinter import Tk, font, ttk
 
 from entities.Patient import Patient
 from entities.Table import Table
@@ -14,9 +14,10 @@ class TestWindow:
         self.root = root
         self._user = user
         self._patient = patient
-        self.number_of_tables = None#количество таблиц
+        self._number_of_tables = None#количество таблиц
         self.dim = None#размерность таблицы
         self.current_table = 1#начинаем с первой таблицы
+        self.label_font1 = font.Font(size =10)
         
         self.elems = []#для хванения номеров текущей таблицы
         '''тут храним список (список номеров, время прохождения) для каждой таблицы.
@@ -28,17 +29,13 @@ class TestWindow:
         self.place_interface()
     
     def init_interface(self):
-        #labels and buttons
-
         if self._patient:
             self.user_lbl = ttk.Label(self.root, text = 'Пациент: '+ str(self._patient.get_surname_n_initials()))
-            self.user_lbl.place(relx=0.1,rely=0.1)
         elif self._user:
             self.user_lbl = ttk.Label(self.root, text = 'Пользователь: '+ str(self._user.get_name()))
-            self.user_lbl.place(relx=0.1,rely=0.1)
-        
+         
         self.time_label = ttk.Label(self.root)
-        self.table_num_label = ttk.Label(self.root, text = 'Таблица: 0')
+        self.table_num_label = ttk.Label(self.root,font=self.label_font1, text = 'Таблица: 0')
         self.start_button = ttk.Button(self.root, text = 'Начать', command=self.start)
         self.instruction_button = ttk.Button(self.root, text = 'Инструкция', command=self.show_instruction)
         self.back_button = ttk.Button(self.root, text = 'Назад', command=self.go_back)
@@ -52,16 +49,19 @@ class TestWindow:
         self.spinbox2 = ttk.Spinbox(self.root, from_=3, to=7, increment=1, textvariable=self.spinbox_var2)
     
     def place_interface(self):
-        
-        self.time_label.place(relx=0.05, rely=0.06)
+        try:
+            self.user_lbl.place(relx=0.1,rely=0.06)
+        except:
+            pass
+        self.time_label.place(relx=0.3, rely=0.06)
         self.start_button.place(relx=0.5, rely=0.6)
-        self.instruction_button.place(relx=0.1, rely=0.05)
-        self.back_button.place(relx=0.9, rely=0.05)
+        self.instruction_button.place(relx=0.75, rely=0.06)
+        self.back_button.place(relx=0.85, rely=0.06)
 
-        self.select_number.place(relx=0.2,rely=0.4)
-        self.select_dimension.place(relx=0.7,rely=0.4)
-        self.spinbox1.place(relx=0.2,rely=0.45)
-        self.spinbox2.place(relx=0.7,rely=0.45)
+        self.select_number.place(relx=0.5,rely=0.4)
+        self.select_dimension.place(relx=0.5,rely=0.5)
+        self.spinbox1.place(relx=0.5,rely=0.45)
+        self.spinbox2.place(relx=0.5,rely=0.55)
 
     def destroy_selectrors(self):
         self.select_number.place_forget()
@@ -78,7 +78,7 @@ class TestWindow:
             self.enabled_checkbutton.place(relx=0.4, rely=0.85)
 
         self.save_button.place(relx=0.4, rely=0.8)
-        self.WOsave_button.place(relx=0.6, rely=0.8)
+        self.WOsave_button.place(relx=0.57, rely=0.8)
 
     def save_to_db(self):
         if self._patient:
@@ -131,7 +131,7 @@ class TestWindow:
 
     def table_controller(self):
         #print(self.spinbox_var1.get(), self.spinbox_var2.get())
-        if self.table_num[-1]>self.number_of_tables:
+        if self.table_num[-1]>self._number_of_tables:
             self.array_elems_times.append((self.elems, int(time.time()) - self.start_time))
             
             self.clean()
@@ -139,7 +139,7 @@ class TestWindow:
             if self._user or self._patient:
                 self.end_interface()
             else:
-                self.back_button.place(relx=0.1, rely=0.07)
+                self.back_button.place(relx=0.85, rely=0.06)
 
             #ТУТ ДОБАВИТЬ ГАЛОЧКУ ВИДИМОСТЬ ДЛЯ ВСЕХ и делать сохранение в бд по нажатию кнопки
 
@@ -162,7 +162,7 @@ class TestWindow:
         self.start_time = int(time.time())
         
         #присваиваем значения количеству таблиц и размерности из spinbox'ов
-        self.number_of_tables = int(self.spinbox_var1.get())
+        self._number_of_tables = int(self.spinbox_var1.get())
         self.dim = int(self.spinbox_var2.get())
         self.destroy_selectrors()#убираем селекторы
         
@@ -177,7 +177,7 @@ class TestWindow:
         self.tab = Table(self.root, self.dim, self.elems, self.table_num)
 
     def make_treeview_for_results(self):
-        self.result_label = ttk.Label(self.root, text='Результат')
+        self.result_label = ttk.Label(self.root,font=self.label_font1, text='Результат')
         columns = ('#1', "#2", "#3", "#4")
         self.tree = ttk.Treeview(self.root, show="headings", columns=columns)
         

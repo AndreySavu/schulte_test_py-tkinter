@@ -4,7 +4,7 @@ from tkinter import Tk, ttk
 from entities.PatientResults import PatientResults
 from entities.PatientStatistics import PatientStatistics
 from entities.PsychologistResults import PsychologistResults
-#from entities.PsychologistStatistics import PsychologistStatistics
+from entities.PsychologistStatistics import PsychologistStatistics
 from entities.UserResults import UserResults
 from entities.UserStatistics import UserStatistics
 
@@ -15,14 +15,21 @@ class ResultWindow():
         self.root = root
         self._user = user
         self._patient = patient
+        self.dims = ['любая', '3x3', '4x4', '5x5', '6x6', '7x7']
+        self.current_dim = 'любая'
         self.init_interface()
         self.place_interface()
-
     
     def init_interface(self):
         self.root.update()
         self.results_label = ttk.Label(self.root, text='Результаты')
         self.stats_label = ttk.Label(self.root, text='Статистика')
+        self.dim_label = ttk.Label(self.root, text='Размерность')
+        self.selected_elem = StringVar(value='любая')
+        self.combobox = ttk.Combobox(self.root,textvariable=self.selected_elem, values=self.dims, state="readonly", width=7)
+        self.combobox.current(0)
+        self.combobox.bind("<<ComboboxSelected>>", self.selected)
+        
         self.left_frame = ttk.Frame(self.root, borderwidth=1, relief=SOLID, padding=[1, 1], width=self.root.winfo_width()/2.05, height= self.root.winfo_height()*0.7)
         self.right_frame = ttk.Frame(self.root, borderwidth=1, relief=SOLID, padding=[1, 1], width=self.root.winfo_width()/2.05, height= self.root.winfo_height()*0.7)
 
@@ -30,19 +37,19 @@ class ResultWindow():
 
         if self._patient == 0:
             self.user_lbl = ttk.Label(self.root, text = 'Психолог: '+ str(self._user.get_name()))
-            self.user_lbl.place(relx=0.05,rely=0.05)
+            self.user_lbl.place(relx=0.05,rely=0.06)
             self.results = PsychologistResults(self.left_frame, self._patient)
-            self.stats = UserStatistics(self.right_frame, self.results, self._user.get_name())
+            self.stats = PsychologistStatistics(self.right_frame, self.results, self._user.get_name())
 
         elif self._patient:
             self.user_lbl = ttk.Label(self.root, text = 'Пациент: '+ str(self._patient.get_surname_n_initials()))
-            self.user_lbl.place(relx=0.05,rely=0.05)
+            self.user_lbl.place(relx=0.05,rely=0.06)
             self.results = PatientResults(self.left_frame, self._patient)
-            self.stats = PatientStatistics(self.right_frame, self.results, self._user.get_name())
+            self.stats = PatientStatistics(self.right_frame, self.results, self._patient.get_surname_n_initials())
         
         elif self._user:
             self.user_lbl = ttk.Label(self.root, text = 'Пользователь: '+ str(self._user.get_name()))
-            self.user_lbl.place(relx=0.05,rely=0.05)
+            self.user_lbl.place(relx=0.05,rely=0.06)
             self.results = UserResults(self.left_frame, self._user)
             self.stats = UserStatistics(self.right_frame, self.results, self._user.get_name())
 
@@ -51,9 +58,16 @@ class ResultWindow():
         self.back_button.place(relx=0.9, rely=0.05)
         self.results_label.place(relx=0.2,rely=0.12)
         self.stats_label.place(relx=0.7,rely=0.12)
-
+        
+        self.dim_label.place(relx=0.45,rely=0.12)
+        self.combobox.place(relx=0.53,rely=0.115)
+        
         self.left_frame.place(relx=0.01,rely=0.15, anchor=NW)
         self.right_frame.place(x=self.root.winfo_width()/2+5, rely=0.15, anchor=NW)
+
+    def selected(self, event):
+        self.results.insert_results(dim_word=self.selected_elem.get())
+        self.stats.make_interface()
 
     def go_back(self):
         self.back_button.place_forget()
