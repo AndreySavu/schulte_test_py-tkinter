@@ -76,6 +76,8 @@ class ResultWindow():
         self.stats_label.place_forget()
         self.left_frame.place_forget()
         self.right_frame.place_forget()
+        self.dim_label.place_forget()
+        self.combobox.place_forget()
         
         if self._patient!=None:
             from frames.PsychologistMenuWindow import PsychologistMenuWindow
